@@ -10,17 +10,18 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
-    var itemArray = [Item]()// ["Find Mike", "Buy Eggos" , "Destroy Demogoron", "a", "b", "c", "d", "e", "z", "w", "t", "lol", "azerty", "qsd", "plo", "qsd" , "aze", "ope", "azqs", "aqdd", "plp", "qsdaze"]
-    
-    let defaults = UserDefaults.standard
-    
+    var itemArray = [Item]()
+//    let defaults = UserDefaults.standard
+    let dataFileManager = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Item.plist")
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        if let item = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = item
-        }
+//        if let item = defaults.array(forKey: "TodoListArray") as? [Item] {
+//            itemArray = item
+//        }
         create()
+        readData()
     }
     
     //MARK -- Add new item
@@ -32,7 +33,8 @@ class TodoListViewController: UITableViewController {
             let newItem = Item()
             newItem.title = textField.text!
             self.itemArray.append(newItem)
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            //self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            self.saveData()
             self.tableView.reloadData()
         }
         
@@ -52,43 +54,13 @@ class TodoListViewController: UITableViewController {
         itemArray.append(newItem)
         
         let newItem1 = Item()
-        newItem1.title = "Find Mike"
+        newItem1.title = "Find Du"
         itemArray.append(newItem1)
         
         let newItem2 = Item()
-        newItem2.title = "Find Mike"
+        newItem2.title = "Find Tony"
         itemArray.append(newItem2)
         
-        let newItem3 = Item()
-        newItem3.title = "Find Mike"
-        itemArray.append(newItem3)
-        
-        let newItem4 = Item()
-        newItem4.title = "Find Mike "
-        itemArray.append(newItem4)
-        
-        let newItem5 = Item()
-        newItem5.title = "Find Mike"
-        itemArray.append(newItem5)
-        
-        let newItem6 = Item()
-        newItem6.title = "Find Mike"
-        itemArray.append(newItem6)
-        
-        let newItem7 = Item()
-        newItem7.title = "Find Mike"
-        itemArray.append(newItem7)
-        
-        let newItem8 = Item()
-        newItem8.title = "Find Mike"
-        itemArray.append(newItem8)
-        
-        let newItem9 = Item()
-        newItem9.title = "Find Mike"
-        itemArray.append(newItem9)
-        
-        let newItem10 = Item()
-        newItem10.title = "Find Mike"
         
     }
     //MARK - Tableviw Datasource Methodes
@@ -111,9 +83,35 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
+        saveData()
+        
         tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    //MARK saveData
+    func saveData() {
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFileManager!)
+        } catch {
+            print("Error encoding item array", error)
+        }
+    }
+    
+    //MARK readSaveData
+    func readData() {
+        if let data = try? Data(contentsOf: dataFileManager!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Decode itemArray error \(error)")
+            }
+        }
     }
 }
 
