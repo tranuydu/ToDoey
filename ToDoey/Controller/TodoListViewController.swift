@@ -23,7 +23,7 @@ class TodoListViewController: UITableViewController {
 //            itemArray = item
 //        }
         //create()
-        //readData()
+        readData()
     }
     
     //MARK -- Add new item
@@ -84,7 +84,11 @@ class TodoListViewController: UITableViewController {
     
     //MARK -  TableView Delegate method
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        //itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        //itemArray[indexPath.row].setValue("Completed", forKey: "title")
+        context.delete(itemArray[indexPath.row])
+        itemArray.remove(at: indexPath.row)
         
         saveData()
         
@@ -103,15 +107,13 @@ class TodoListViewController: UITableViewController {
     }
     
     //MARK readSaveData
-//    func readData() {
-//        if let data = try? Data(contentsOf: dataFileManager!) {
-//            let decoder = PropertyListDecoder()
-//            do {
-//                itemArray = try decoder.decode([Item].self, from: data)
-//            } catch {
-//                print("Decode itemArray error \(error)")
-//            }
-//        }
-//    }
+    func readData() {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray  = try context.fetch(request)
+        } catch {
+            print("Error fetching data from contect")
+        }
+    }
 }
 
